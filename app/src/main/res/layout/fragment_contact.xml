@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    tools:context="com.etspteam.a1_messaging.main.contact.ContactFragment">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="   Bạn thân"
+        android:textSize="15sp"
+        android:background="#ECECEC"
+        android:padding="4dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/favorite_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="   Danh sách bạn bè"
+        android:background="#ECECEC"
+        android:textSize="15sp"
+        android:padding="4dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CECECE"
+        android:id="@+id/recyclerview_member" />
+
+</LinearLayout>

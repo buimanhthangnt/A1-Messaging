@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="greenblue">#4CB8AB</color>
+    <color name="greenbluedark">#44A599</color>
+    <color name="facebook">#3B5998</color>
+    <color name="darkerFacebook">#2F487A</color>
+    <color name="darkgreen">#00796B</color>
+    <color name="darkergreen">#006C60</color>
+    <color name="line_color">#3C4351</color>
+    <color name="dark_line_color">#303540</color>
+    <color name="message">#33CD8D</color>
+    <color name="left_message">#DEDEDE</color>
+    <color name="itemIsClicked">#E5E5E5</color>
+    <color name="blue">#018FE5</color>
+    <color name="bluedark">#0080CD</color>
+    <color name="monsoon">#777777</color>
+    <color name="iron">#CECECE</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gmail">#4CAF50</color>
+    <color name="gmail_dark">#449D48</color>
+    <color name="green_material">#00897B</color>
+    <color name="green_material_dark">#007B6E</color>
+    <color name="incogtive">#424242</color>
+    <color name="incogtive_dark">#323538</color>
+</resources>

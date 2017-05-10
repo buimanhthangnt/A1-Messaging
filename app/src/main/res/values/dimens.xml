@@ -1,0 +1,19 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="keyboard_height">250dp</dimen>
+    <dimen name="padding_left_message">14dp</dimen>
+    <dimen name="padding_right_message">14dp</dimen>
+    <dimen name="padding_top_message">7dp</dimen>
+    <dimen name="padding_bottom_message">8dp</dimen>
+    <dimen name="min_width">127dp</dimen>
+    <dimen name="emotion_height">56dp</dimen>
+    <dimen name="emotion_width">56dp</dimen>
+    <dimen name="sticker_height">70dp</dimen>
+    <dimen name="sticker_width">70dp</dimen>
+    <dimen name="radius_message_large">20dp</dimen>
+    <dimen name="radius_message_small">5dp</dimen>
+    <dimen name="width1">111dp</dimen>
+    <dimen name="width2">72dp</dimen>
+    <dimen name="like_size">88dp</dimen>
+</resources>

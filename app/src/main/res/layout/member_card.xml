@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_member"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_background">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_centerVertical="true"
+        android:layout_margin="8dp"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/profile_image"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name_member"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#0F9D58"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/phone_member"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/icon_menu_member"
+        android:layout_width="54dp"
+        android:layout_height="54dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        app:srcCompat="@drawable/ic_menu" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#C2C2C2"
+        android:layout_marginStart="72dp"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle" >
+    <solid android:color="@color/message" >
+    </solid>
+    <corners
+        android:topLeftRadius="@dimen/radius_message_large"
+        android:topRightRadius="@dimen/radius_message_large"
+        android:bottomLeftRadius="@dimen/radius_message_large"
+        android:bottomRightRadius="@dimen/radius_message_small"/>
+</shape>
