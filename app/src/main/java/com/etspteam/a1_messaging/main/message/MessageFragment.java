@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -89,6 +88,33 @@ public class MessageFragment extends Fragment {
         }
 
         root_user_name = FirebaseDatabase.getInstance().getReference().child("messages").child(userName);
+        root_user_name.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                update_new_messages(dataSnapshot);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                update_new_messages(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
         listMessageItems = (RecyclerView) v.findViewById(R.id.list_message_item);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         listMessageItems.setLayoutManager(layoutManager);
@@ -210,7 +236,7 @@ public class MessageFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (root_user_name == null) return;
+        if (root_user_name == null || listener == null) return;
         root_user_name.removeEventListener(listener);
     }
 }

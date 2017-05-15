@@ -32,13 +32,21 @@ class FavoriteFriendAdapter extends RecyclerView.Adapter{
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final FavoriteFriendHolder memberHolder = (FavoriteFriendHolder) holder;
+        int indexMember = 0;
+        for (int i = 0; i < ListMember.getList().size(); i++) {
+            if (ListMember.getList().get(i).idImage == list.get(position).idImage) {
+                indexMember = i;
+                break;
+            }
+        }
+        final int finalIndex = indexMember;
         memberHolder.nameMember.setText(list.get(position).beautifulName);
         memberHolder.profile.setImageResource(list.get(position).idImage);
         memberHolder.profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context.getApplicationContext(),ChatActivity.class);
-                intent.putExtra("index", position);
+                intent.putExtra("com.etspteam.index", finalIndex);
                 context.startActivity(intent);
             }
         });

@@ -28,11 +28,16 @@ import com.etspteam.a1_messaging.login_signup.LoginActivity;
 import com.etspteam.a1_messaging.R;
 import com.etspteam.a1_messaging.database.DataApplicationHelper;
 import com.etspteam.a1_messaging.database.DataCursorWrapper;
+import com.etspteam.a1_messaging.main.contact.ListMember;
 import com.etspteam.a1_messaging.main.group.GroupChatFragment;
 import com.etspteam.a1_messaging.main.message.MessageFragment;
 import com.etspteam.a1_messaging.main.contact.ContactFragment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+    private static int indexUser = 0;
     public static String userName = "";
     private Toolbar toolbar;
 
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (userName.equals("")) {
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1);
         }
 
         LinearLayout tab1 = (LinearLayout) findViewById(R.id.tab1);
@@ -93,10 +98,19 @@ public class MainActivity extends AppCompatActivity {
         }
         setTitleToolbar("Tin nhắn");
         setSelectedTab1(1);
-        if (!userName.equals("")) {
-            Intent i = PushNotificationService.newIntent(this, userName);
-            startService(i);
-            //PushNotificationService.setServiceAlarm(this, true, userName);
+//        if (!userName.equals("")) {
+//            Intent i = PushNotificationService.newIntent(this, userName);
+//            startService(i);
+//            //start service. Remember stop when activity is destroyed
+//            //PushNotificationService.setServiceAlarm(this, true, userName);
+//        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == 1) {
+            this.recreate();
         }
     }
 
@@ -181,6 +195,20 @@ public class MainActivity extends AppCompatActivity {
             cursor1.close();
         }
         return pair.second;
+    }
+
+    public static int getuserIndex() {
+        for (ListMember.Member member: ListMember.getList())
+            if (userName.equals(member.shortname)) indexUser = member.id - 1;
+        return indexUser;
+    }
+
+    public static List<ListMember.Member> getListWithoutUser() {
+        List<ListMember.Member> list = new ArrayList<>();
+        for (ListMember.Member member: ListMember.getList()) {
+            if (!member.shortname.equals(userName)) list.add(member);
+        }
+        return list;
     }
 
     public void setToolbarAndStatusBarColor(int resTool, int resStatus) {

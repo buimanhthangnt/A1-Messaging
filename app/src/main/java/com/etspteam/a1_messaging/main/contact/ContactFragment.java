@@ -44,7 +44,7 @@ public class ContactFragment extends Fragment {
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter(new MemberAdapter(getContext(), ListMember.getList()));
+        recyclerView.setAdapter(new MemberAdapter(getContext(), MainActivity.getListWithoutUser()));
 
         favoriteList = (RecyclerView) v.findViewById(R.id.favorite_list);
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);

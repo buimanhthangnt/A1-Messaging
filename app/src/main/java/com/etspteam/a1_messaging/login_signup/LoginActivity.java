@@ -1,6 +1,5 @@
 package com.etspteam.a1_messaging.login_signup;
 
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -28,6 +27,7 @@ import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.etspteam.a1_messaging.R;
 import com.etspteam.a1_messaging.database.DataApplicationHelper;
+import com.etspteam.a1_messaging.main.MainActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -163,6 +163,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginSuccess() {
         loginButton.setEnabled(true);
         Toast.makeText(getBaseContext(), "Đăng nhập thành công", Toast.LENGTH_LONG).show();
+        setResult(1);
         finish();
     }
 
