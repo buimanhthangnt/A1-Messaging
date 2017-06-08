@@ -33,7 +33,7 @@ class MemberAdapter extends RecyclerView.Adapter{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-        final MemberHolder memberHolder = (MemberHolder) holder;
+        MemberHolder memberHolder = (MemberHolder) holder;
         memberHolder.nameMember.setText(list.get(position).name);
         memberHolder.phoneMember.setText("SĐT:  " + list.get(position).phoneNuber);
         memberHolder.profile.setImageResource(list.get(position).idImage);

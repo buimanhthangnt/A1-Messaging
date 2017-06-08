@@ -116,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
                 .backgroundColor(getResources().getColor(R.color.darkerFacebook))
                 .content("   Đang kiểm tra")
+                .canceledOnTouchOutside(false)
                 .progress(true, 0).show();
         progressDialog.show();
 

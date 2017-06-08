@@ -109,6 +109,7 @@ public class SignupActivity extends AppCompatActivity {
         final MaterialDialog progressDialog = new MaterialDialog.Builder(this)
                 .backgroundColor(getResources().getColor(R.color.darkergreen))
                 .content("   Đang tạo tài khoản")
+                .canceledOnTouchOutside(false)
                 .progress(true, 0).show();
         progressDialog.show();
 

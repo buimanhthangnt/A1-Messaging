@@ -15,7 +15,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.etspteam.a1_messaging.R;
 
-class StickersGridAdapter extends BaseAdapter {
+public class StickersGridAdapter extends BaseAdapter {
 
     private ArrayList<String> paths;
     private Activity mContext;
@@ -85,7 +85,7 @@ class StickersGridAdapter extends BaseAdapter {
         return BitmapFactory.decodeStream(in, null, null);
     }
 
-    interface KeyClickListener {
+    public interface KeyClickListener {
         void keyClickedIndex(String index);
     }
 }

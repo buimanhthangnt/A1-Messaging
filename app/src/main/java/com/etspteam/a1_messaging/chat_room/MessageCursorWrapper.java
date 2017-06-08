@@ -8,12 +8,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class MessageCursorWrapper extends CursorWrapper {
-    MessageCursorWrapper(Cursor cursor) {
+public class MessageCursorWrapper extends CursorWrapper {
+    public MessageCursorWrapper(Cursor cursor) {
         super(cursor);
     }
 
-    MessagesListAdapter.Message getMessage(String user_name) {
+    public MessagesListAdapter.Message getMessage(String user_name) {
         String from = getString(getColumnIndex("sender"));
         String content = getString(getColumnIndex("content"));
         String date = getString(getColumnIndex("time"));

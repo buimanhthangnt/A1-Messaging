@@ -1,4 +1,4 @@
-package com.etspteam.a1_messaging.chat_room;
+package com.etspteam.a1_messaging.main.group;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -32,6 +32,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import com.etspteam.a1_messaging.R;
+import com.etspteam.a1_messaging.chat_room.KeyboardHeightObserver;
+import com.etspteam.a1_messaging.chat_room.KeyboardHeightProvider;
+import com.etspteam.a1_messaging.chat_room.MessagesDatabaseHelper;
+import com.etspteam.a1_messaging.chat_room.StickersGridAdapter;
+import com.etspteam.a1_messaging.chat_room.StickersPagerAdapter;
 import com.etspteam.a1_messaging.database.DataApplicationHelper;
 import com.etspteam.a1_messaging.database.DataCursorWrapper;
 import com.etspteam.a1_messaging.main.contact.ListMember;
@@ -48,10 +53,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ChatActivity extends AppCompatActivity implements StickersGridAdapter.KeyClickListener, KeyboardHeightObserver {
+public class GroupChatActivity extends AppCompatActivity implements StickersGridAdapter.KeyClickListener, KeyboardHeightObserver {
 
     private EditText input_msg;
-    private List<MessagesListAdapter.Message> listMessages;
+    private List<GroupMessagesListAdapter.Message> listMessages;
     private String user_name;
     private DatabaseReference root_user_name;
     private DatabaseReference root_room_name;
@@ -66,7 +71,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
     private View headerView;
     private boolean isLoading = false;
     private ListView listViewMessages;
-    private MessageCursorWrapper cursor2;
+    private GroupMessageCursorWrapper cursor2;
     private boolean hasJustOpen = true;
     private View popupView;
     private PopupWindow popupWindow;
@@ -80,7 +85,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_group_chat);
         rootLayout = (LinearLayout) findViewById(R.id.chat_activity);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -167,10 +172,10 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
         });
 
         listMessages = new ArrayList<>();
-        listMessages.add(new MessagesListAdapter.Message("", "", true, "", "", "text"));
-        listMessages.add(new MessagesListAdapter.Message("", "", true, "", "", "text"));
+        listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
+        listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
 
-        cursor2 = new MessageCursorWrapper(database.query(tableName, null, null, null, null, null, null));
+        cursor2 = new GroupMessageCursorWrapper(database.query(tableName, null, null, null, null, null, null));
         int count = 0;
         cursor2.moveToLast();
         while (count <= 15 && !cursor2.isBeforeFirst()) {
@@ -179,7 +184,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
             cursor2.moveToPrevious();
         }
 
-        MessagesListAdapter adapter = new MessagesListAdapter(this, listMessages, idUserName, idRoomName);
+        GroupMessagesListAdapter adapter = new GroupMessagesListAdapter(this, listMessages, idUserName, idRoomName);
         listViewMessages.setAdapter(adapter);
 
         root_room_name.addChildEventListener(new ChildEventListener() {
@@ -333,7 +338,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
 
         message_root.updateChildren(map2);
 
-        listMessages.add(listMessages.size() - 1, new MessagesListAdapter.Message(user_name, message, true, currentDateandTime, "Đã gửi", type));
+        listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(user_name, message, true, currentDateandTime, "Đã gửi", type));
         updateListMessages();
         listViewMessages.setSelection(listMessages.size() - 1);
 
@@ -350,7 +355,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
 
     private void enablePopUpView() {
         ViewPager pager = (ViewPager) popupView.findViewById(R.id.emoticons_pager);
-        pager.setAdapter(new StickersPagerAdapter(ChatActivity.this, this));
+        pager.setAdapter(new StickersPagerAdapter(GroupChatActivity.this, this));
         tabSticker.setupWithViewPager(pager);
         View view1 = getLayoutInflater().inflate(R.layout.custom_tab_icon, null);
         view1.findViewById(R.id.icon_tab).setBackgroundResource(R.drawable.tab1);
@@ -374,7 +379,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
     }
 
     private void updateListMessages() {
-        listViewMessages.setAdapter(new MessagesListAdapter(getBaseContext(), listMessages, idUserName, idRoomName));
+        listViewMessages.setAdapter(new GroupMessagesListAdapter(getBaseContext(), listMessages, idUserName, idRoomName));
     }
 
     @Override
@@ -477,14 +482,14 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
                 values.put("state", "Đã nhận");
                 values.put("type", type);
                 mDatabase.update(tableName, values, "state" + " = ?", new String[]{"Đã nhận"});
-                for (MessagesListAdapter.Message message : listMessages) {
+                for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã nhận";
                 }
                 updateListMessages();
             }
 
             if (sender.equals(user_name) && state.getValue().equals("Đã xem")) {
-                for (MessagesListAdapter.Message message : listMessages) {
+                for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã xem";
                 }
                 ContentValues values = new ContentValues();
@@ -519,7 +524,7 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
 //                e.printStackTrace();
 //            }
             if (sender.equals(room_name) && state.getValue().equals("Đã gửi")) {
-                listMessages.add(listMessages.size() - 1, new MessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
+                listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
                 updateListMessages();
                 ContentValues values = new ContentValues();
                 values.put("content", chat_msg);

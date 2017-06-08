@@ -10,11 +10,11 @@ import android.widget.GridView;
 import com.etspteam.a1_messaging.chat_room.StickersGridAdapter.KeyClickListener;
 import com.etspteam.a1_messaging.R;
 
-class StickersPagerAdapter extends PagerAdapter {
+public class StickersPagerAdapter extends PagerAdapter {
     private Activity mActivity;
     private KeyClickListener mListener;
 
-    StickersPagerAdapter(Activity activity, StickersGridAdapter.KeyClickListener listener) {
+    public StickersPagerAdapter(Activity activity, StickersGridAdapter.KeyClickListener listener) {
         this.mActivity = activity;
         this.mListener = listener;
     }

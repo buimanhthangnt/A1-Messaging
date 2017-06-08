@@ -35,7 +35,9 @@
             android:name=".login_signup.SignupActivity"
             android:theme="@style/AppTheme.Dark" />
 
-        <service android:name=".PushNotificationService"/>
+        <service android:name=".PushNotificationService" />
+
+        <activity android:name=".main.group.GroupChatActivity"></activity>
     </application>
 
 </manifest>

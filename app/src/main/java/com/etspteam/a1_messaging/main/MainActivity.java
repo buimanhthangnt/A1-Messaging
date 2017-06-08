@@ -21,8 +21,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.etspteam.a1_messaging.PushNotificationService;
 import com.etspteam.a1_messaging.chat_room.MessagesDatabaseHelper;
 import com.etspteam.a1_messaging.login_signup.LoginActivity;
 import com.etspteam.a1_messaging.R;

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,14 +27,18 @@ class MemberInGroupAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final MemberInGroupViewHolder member = (MemberInGroupViewHolder) holder;
+        final int[] listSM = GroupChatFragment.listSelectedMember;
+        final int indexInList = list.get(position).id - 1;
         member.nameMember.setText(list.get(position).name);
-        member.isSelected.setOnClickListener(new View.OnClickListener() {
+        member.isSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if (member.isSelected.isChecked()) GroupChatFragment.listSelectedMember[list.get(position).id - 1] = 1;
-                else GroupChatFragment.listSelectedMember[list.get(position).id - 1] = 0;
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) listSM[indexInList] = 1;
+                else listSM[indexInList] = 0;
             }
         });
+        if (listSM[indexInList] == 1) member.isSelected.setChecked(true);
+        else member.isSelected.setChecked(false);
     }
 
     @Override
