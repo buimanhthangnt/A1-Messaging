@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.etspteam.a1_messaging.R;
+import com.etspteam.a1_messaging.main.MainActivity;
 import com.etspteam.a1_messaging.main.contact.ListMember;
 import java.io.InputStream;
 import java.util.List;
@@ -22,14 +23,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 class GroupMessagesListAdapter extends BaseAdapter {
     private Context context;
     private List<GroupMessagesListAdapter.Message> messagesItems;
-    private int idUser;
-    private int idRoom;
+    private int indexUser = MainActivity.getuserIndex();
 
-    GroupMessagesListAdapter(Context context, List<GroupMessagesListAdapter.Message> navDrawerItems, int idUserName, int idRoomName) {
+    GroupMessagesListAdapter(Context context, List<GroupMessagesListAdapter.Message> navDrawerItems, String listMembers) {
         this.context = context;
         this.messagesItems = navDrawerItems;
-        idUser = idUserName;
-        idRoom = idRoomName;
+
     }
 
     @Override
@@ -78,8 +77,7 @@ class GroupMessagesListAdapter extends BaseAdapter {
         CircleImageView imageProfile = (CircleImageView) convertView.findViewById(R.id.sender);
         ImageView sticker = (ImageView) convertView.findViewById(R.id.sticker);
 
-        String user_name = ListMember.getList().get(idUser - 1).shortname;
-        String room_name = ListMember.getList().get(idRoom - 1).shortname;
+        String user_name = MainActivity.userName;
 
         TextView txtMsg = (TextView) convertView.findViewById(R.id.txtMsg);
         boolean top = false;

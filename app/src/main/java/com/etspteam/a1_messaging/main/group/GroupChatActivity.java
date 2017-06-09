@@ -8,8 +8,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
@@ -25,7 +23,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,12 +31,10 @@ import android.widget.PopupWindow;
 import com.etspteam.a1_messaging.R;
 import com.etspteam.a1_messaging.chat_room.KeyboardHeightObserver;
 import com.etspteam.a1_messaging.chat_room.KeyboardHeightProvider;
-import com.etspteam.a1_messaging.chat_room.MessagesDatabaseHelper;
 import com.etspteam.a1_messaging.chat_room.StickersGridAdapter;
 import com.etspteam.a1_messaging.chat_room.StickersPagerAdapter;
 import com.etspteam.a1_messaging.database.DataApplicationHelper;
 import com.etspteam.a1_messaging.database.DataCursorWrapper;
-import com.etspteam.a1_messaging.main.contact.ListMember;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -58,21 +53,10 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
     private EditText input_msg;
     private List<GroupMessagesListAdapter.Message> listMessages;
     private String user_name;
-    private DatabaseReference root_user_name;
-    private DatabaseReference root_room_name;
-    private int idUserName;
-    private int idRoomName;
-    private String room_name;
-    private SQLiteDatabase database;
-    private String tableName;
-    private ChildEventListener listener_user;
-    private ChildEventListener listener_room;
-    private Handler handler;
-    private View headerView;
-    private boolean isLoading = false;
+    private DatabaseReference root_group;
+    private String group_name;
+    private ChildEventListener listener_group;
     private ListView listViewMessages;
-    private GroupMessageCursorWrapper cursor2;
-    private boolean hasJustOpen = true;
     private View popupView;
     private PopupWindow popupWindow;
     private int keyboardHeight;
@@ -81,12 +65,13 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
     private ImageView stickerSelection;
     private TabLayout tabSticker;
     private KeyboardHeightProvider keyboardHeightProvider;
+    private String listMembers;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_chat);
-        rootLayout = (LinearLayout) findViewById(R.id.chat_activity);
+        rootLayout = (LinearLayout) findViewById(R.id.group_chat_activity);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
@@ -101,13 +86,11 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             window.setStatusBarColor(ContextCompat.getColor(this, R.color.dark_line_color));
         }
 
-        final ImageView btn_send_msg = (ImageView) findViewById(R.id.btn_send);
-        input_msg = (EditText) findViewById(R.id.msg_input);
-        listViewMessages = (ListView) findViewById(R.id.list_view_messages);
+        final ImageView btn_send_msg = (ImageView) findViewById(R.id.group_btn_send);
+        input_msg = (EditText) findViewById(R.id.group_msg_input);
+        listViewMessages = (ListView) findViewById(R.id.group_list_view_messages);
         LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        headerView = li.inflate(R.layout.header_chat, null);
         popupView = getLayoutInflater().inflate(R.layout.sticker_popup, null);
-        handler = new MessageHandler();
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         tabSticker = (TabLayout) popupView.findViewById(R.id.tab_sticker);
         keyboardHeightProvider = new KeyboardHeightProvider(this);
@@ -133,26 +116,10 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             cursor.close();
         }
         user_name = listSettings.get(0).second;
-
-        int index = getIntent().getIntExtra("com.etspteam.index", 0);
-        room_name = ListMember.getList().get(index).shortname;
-        setTitle(ListMember.getList().get(index).name);
-
-        idRoomName = ListMember.getList().get(index).id;
-        idUserName = 0;
-        for (ListMember.Member member : ListMember.getList()) {
-            if (member.shortname.equals(user_name)) {
-                idUserName = member.id;
-            }
-        }
-        String chileName = getChildName();
-        root_room_name = FirebaseDatabase.getInstance().getReference().child("messages").child(room_name);
-        root_user_name = FirebaseDatabase.getInstance().getReference().child("messages").child(user_name);
-
-        MessagesDatabaseHelper databaseHelper = new MessagesDatabaseHelper(this);
-        database = databaseHelper.getWritableDatabase();
-        tableName = "db" + chileName;
-        databaseHelper.createTable(database, tableName);
+        group_name = getIntent().getStringExtra("com.etspteam.groupName");
+        listMembers = getIntent().getStringExtra("com.etspteam.members");
+        setTitle(group_name);
+        root_group = FirebaseDatabase.getInstance().getReference().child("group").child("group_info").child(group_name);
 
         btn_send_msg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,19 +142,10 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
         listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
 
-        cursor2 = new GroupMessageCursorWrapper(database.query(tableName, null, null, null, null, null, null));
-        int count = 0;
-        cursor2.moveToLast();
-        while (count <= 15 && !cursor2.isBeforeFirst()) {
-            listMessages.add(1, cursor2.getMessage(user_name));
-            count++;
-            cursor2.moveToPrevious();
-        }
-
-        GroupMessagesListAdapter adapter = new GroupMessagesListAdapter(this, listMessages, idUserName, idRoomName);
+        GroupMessagesListAdapter adapter = new GroupMessagesListAdapter(this, listMessages, listMembers);
         listViewMessages.setAdapter(adapter);
 
-        root_room_name.addChildEventListener(new ChildEventListener() {
+        root_group.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
@@ -211,21 +169,6 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
-
-        listViewMessages.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (totalItemCount > visibleItemCount && firstVisibleItem == 0 && !isLoading) {
-                    isLoading = true;
-                    Thread thread = new ThreadGetMoreData();
-                    thread.start();
-                }
             }
         });
 
@@ -270,19 +213,6 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         });
     }
 
-    private String getChildName() {
-        String id_user_name;
-        if (idUserName < 10) id_user_name = "0" + Integer.valueOf(idUserName).toString();
-        else id_user_name = Integer.valueOf(idUserName).toString();
-
-        String id_room_name;
-        if (idRoomName < 10) id_room_name = "0" + Integer.valueOf(idRoomName).toString();
-        else id_room_name = Integer.valueOf(idRoomName).toString();
-
-        if (idUserName < idRoomName) return id_user_name + id_room_name;
-        else return id_room_name + id_user_name;
-    }
-
     @Override
     public void onKeyboardHeightChanged(int height, int orientation) {
         if (height < 100) return;
@@ -322,10 +252,10 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             message = "like_sticker.PNG";
         }
         Map<String, Object> map = new HashMap<>();
-        String temp_key = root_room_name.push().getKey();
-        root_room_name.updateChildren(map);
+        String temp_key = root_group.push().getKey();
+        root_group.updateChildren(map);
 
-        DatabaseReference message_root = root_room_name.child(temp_key);
+        DatabaseReference message_root = root_group.child(temp_key);
         Map<String, Object> map2 = new HashMap<>();
         map2.put("name", user_name);
         map2.put("msg", message);
@@ -341,15 +271,6 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(user_name, message, true, currentDateandTime, "Đã gửi", type));
         updateListMessages();
         listViewMessages.setSelection(listMessages.size() - 1);
-
-        ContentValues values = new ContentValues();
-        values.put("content", message);
-        values.put("time", currentDateandTime);
-        values.put("sender", user_name);
-        values.put("state", "Đã gửi");
-        values.put("type", type);
-        database.insert(tableName, null, values);
-
         if (type.equals("text")) input_msg.setText("");
     }
 
@@ -379,45 +300,18 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
     }
 
     private void updateListMessages() {
-        listViewMessages.setAdapter(new GroupMessagesListAdapter(getBaseContext(), listMessages, idUserName, idRoomName));
+        listViewMessages.setAdapter(new GroupMessagesListAdapter(getBaseContext(), listMessages, listMembers));
     }
 
     @Override
     public void onStop() {
-        root_user_name.removeEventListener(listener_user);
-        root_room_name.removeEventListener(listener_room);
+        root_group.removeEventListener(listener_group);
         super.onStop();
     }
 
     @Override
     public void onResume() {
-        listener_user = root_user_name.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                update_conservation_of_user(dataSnapshot);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                update_conservation_of_user(dataSnapshot);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        listener_room = root_room_name.addChildEventListener(new ChildEventListener() {
+        listener_group = root_group.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 update_conservation_of_room(dataSnapshot);
@@ -471,72 +365,21 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             date = (String) ((DataSnapshot) i.next()).getValue();
             type = (String) ((DataSnapshot) i.next()).getValue();
 
-            MessagesDatabaseHelper helper = new MessagesDatabaseHelper(getBaseContext());
-            SQLiteDatabase mDatabase = helper.getWritableDatabase();
-            helper.createTable(mDatabase, tableName);
-            if (sender.equals(user_name) && state.getValue().equals("Đã nhận")) {
-                ContentValues values = new ContentValues();
-                values.put("content", chat_msg);
-                values.put("time", date);
-                values.put("sender", sender);
-                values.put("state", "Đã nhận");
-                values.put("type", type);
-                mDatabase.update(tableName, values, "state" + " = ?", new String[]{"Đã nhận"});
+            if (state.getValue().equals("Đã gửi")) {
+                listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
+                updateListMessages();
+                state.getRef().setValue("Đã xem");
+            } else if (state.getValue().equals("Đã nhận")) {
                 for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã nhận";
                 }
                 updateListMessages();
             }
-
-            if (sender.equals(user_name) && state.getValue().equals("Đã xem")) {
+            if (state.getValue().equals("Đã xem")) {
                 for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã xem";
                 }
-                ContentValues values = new ContentValues();
-                values.put("content", chat_msg);
-                values.put("time", date);
-                values.put("sender", sender);
-                values.put("state", "Đã xem");
-                values.put("type", type);
-                mDatabase.update(tableName, values, "time" + " = ?", new String[]{date});
-                dataSnapshot.getRef().removeValue();
                 updateListMessages();
-            }
-        }
-    }
-
-    private void update_conservation_of_user(final DataSnapshot dataSnapshot) {
-        Iterator i = dataSnapshot.getChildren().iterator();
-        String chat_msg, sender, date, type;
-        DataSnapshot state;
-
-        while (i.hasNext()) {
-            chat_msg = (String) ((DataSnapshot) i.next()).getValue();
-            sender = (String) ((DataSnapshot) i.next()).getValue();
-            state = (DataSnapshot) i.next();
-            date = (String) ((DataSnapshot) i.next()).getValue();
-            type = (String) ((DataSnapshot) i.next()).getValue();
-//            DateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-//            Date date1 = new Date();
-//            try {
-//                date1 = sdf.parse(date);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
-            if (sender.equals(room_name) && state.getValue().equals("Đã gửi")) {
-                listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
-                updateListMessages();
-                ContentValues values = new ContentValues();
-                values.put("content", chat_msg);
-                values.put("time", date);
-                values.put("sender", sender);
-                values.put("state", "Đã xem");
-                values.put("type", type);
-                database.insert(tableName, null, values);
-
-                state.getRef().setValue("Đã xem");
-            } else if (sender.equals(room_name) && state.getValue().equals("Đã nhận")) {
-                state.getRef().setValue("Đã xem");
             }
         }
     }
@@ -544,50 +387,5 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
     @Override
     public void keyClickedIndex(final String index) {
 
-    }
-
-    private class MessageHandler extends Handler {
-        private int size = 1;
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    if (size == 0) return;
-                    if (hasJustOpen) {
-                        hasJustOpen = false;
-                        return;
-                    }
-                    listViewMessages.addHeaderView(headerView);
-                    break;
-                case 1:
-                    size = getMoreData();
-                    int index = listViewMessages.getFirstVisiblePosition() + size;
-                    View v = listViewMessages.getChildAt(listViewMessages.getHeaderViewsCount());
-                    int top = (v == null) ? 0 : v.getTop();
-                    updateListMessages();
-                    listViewMessages.setSelectionFromTop(index, top);
-                    listViewMessages.removeHeaderView(headerView);
-                    isLoading = false;
-                    break;
-            }
-        }
-    }
-
-    private int getMoreData() {
-        int count = 0;
-        while (count <= 15 && !cursor2.isBeforeFirst()) {
-            listMessages.add(1, cursor2.getMessage(user_name));
-            count++;
-            cursor2.moveToPrevious();
-        }
-        return count;
-    }
-
-    private class ThreadGetMoreData extends Thread {
-        @Override
-        public void run() {
-            handler.sendEmptyMessage(0);
-            handler.sendMessage(handler.obtainMessage(1, true));
-        }
     }
 }

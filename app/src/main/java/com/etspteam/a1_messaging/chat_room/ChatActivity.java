@@ -511,13 +511,6 @@ public class ChatActivity extends AppCompatActivity implements StickersGridAdapt
             state = (DataSnapshot) i.next();
             date = (String) ((DataSnapshot) i.next()).getValue();
             type = (String) ((DataSnapshot) i.next()).getValue();
-//            DateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-//            Date date1 = new Date();
-//            try {
-//                date1 = sdf.parse(date);
-//            } catch (ParseException e) {
-//                e.printStackTrace();
-//            }
             if (sender.equals(room_name) && state.getValue().equals("Đã gửi")) {
                 listMessages.add(listMessages.size() - 1, new MessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
                 updateListMessages();

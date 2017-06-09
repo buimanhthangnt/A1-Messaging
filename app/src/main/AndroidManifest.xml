@@ -37,7 +37,13 @@
 
         <service android:name=".PushNotificationService" />
 
-        <activity android:name=".main.group.GroupChatActivity"></activity>
+        <activity
+            android:name=".main.group.GroupChatActivity"
+            android:windowSoftInputMode="adjustResize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.etspteam.a1_messaging.main.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
