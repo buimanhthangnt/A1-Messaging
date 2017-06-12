@@ -119,7 +119,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         group_name = getIntent().getStringExtra("com.etspteam.groupName");
         listMembers = getIntent().getStringExtra("com.etspteam.members");
         setTitle(group_name);
-        root_group = FirebaseDatabase.getInstance().getReference().child("group").child("group_info").child(group_name);
+        root_group = FirebaseDatabase.getInstance().getReference().child("group").child("messages").child(group_name);
 
         btn_send_msg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,7 +172,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             }
         });
 
-        stickerSelection = (ImageView) findViewById(R.id.sticker_selection);
+        stickerSelection = (ImageView) findViewById(R.id.group_sticker_selection);
 
         keyboardHeight = Integer.parseInt(listSettings.get(1).second);
         stickerSelection.setOnClickListener(new View.OnClickListener() {
@@ -364,23 +364,20 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             state = (DataSnapshot) i.next();
             date = (String) ((DataSnapshot) i.next()).getValue();
             type = (String) ((DataSnapshot) i.next()).getValue();
-
             if (state.getValue().equals("Đã gửi")) {
-                listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
-                updateListMessages();
                 state.getRef().setValue("Đã xem");
             } else if (state.getValue().equals("Đã nhận")) {
                 for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã nhận";
                 }
-                updateListMessages();
             }
             if (state.getValue().equals("Đã xem")) {
                 for (GroupMessagesListAdapter.Message message : listMessages) {
                     if (message.date.equals(date)) message.state = "Đã xem";
                 }
-                updateListMessages();
             }
+            listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
+            updateListMessages();
         }
     }
 

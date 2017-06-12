@@ -23,7 +23,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 class GroupMessagesListAdapter extends BaseAdapter {
     private Context context;
     private List<GroupMessagesListAdapter.Message> messagesItems;
-    private int indexUser = MainActivity.getuserIndex();
 
     GroupMessagesListAdapter(Context context, List<GroupMessagesListAdapter.Message> navDrawerItems, String listMembers) {
         this.context = context;
@@ -50,21 +49,26 @@ class GroupMessagesListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         GroupMessagesListAdapter.Message m = messagesItems.get(position);
+        boolean nextIsSelf = position + 1 >= messagesItems.size() || messagesItems.get(position + 1).isSelf;
+        boolean currentIsSelf = messagesItems.get(position).isSelf;
+        boolean prevIsSelf = position - 1 < 0 || messagesItems.get(position - 1).isSelf;
+        Message prev = (position - 1 >= 0) ? messagesItems.get(position - 1) : m;
+        Message next = (position + 1 < messagesItems.size()) ? messagesItems.get(position + 1) : prev;
 
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
         if (position == messagesItems.size() - 1) {
-            if (!(messagesItems.get(position - 1).isSelf) || messagesItems.get(position - 1).state.equals("")) return mInflater.inflate(R.layout.list_item_message_left, null);
+            if (!prevIsSelf || prev.state.equals("")) return mInflater.inflate(R.layout.list_item_message_left, null);
             convertView = mInflater.inflate(R.layout.state_message, null);
             TextView state = (TextView) convertView.findViewById(R.id.state);
-            state.setText(messagesItems.get(position - 1).state);
+            state.setText(prev.state);
             LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             llp.setMargins(0,0,0,36);
             state.setLayoutParams(llp);
             return convertView;
         }
 
-        if (messagesItems.get(position).isSelf) {
+        if (m.isSelf) {
             convertView = mInflater.inflate(R.layout.list_item_message_right, null);
         } else {
             convertView = mInflater.inflate(R.layout.list_item_message_left, null);
@@ -77,21 +81,19 @@ class GroupMessagesListAdapter extends BaseAdapter {
         CircleImageView imageProfile = (CircleImageView) convertView.findViewById(R.id.sender);
         ImageView sticker = (ImageView) convertView.findViewById(R.id.sticker);
 
-        String user_name = MainActivity.userName;
-
         TextView txtMsg = (TextView) convertView.findViewById(R.id.txtMsg);
         boolean top = false;
         boolean bottom = false;
 
-        if (messagesItems.get(position).fromName.equals(user_name)) {
-            if (position - 1 >= 0 && messagesItems.get(position - 1).fromName.equals(user_name)) {
-                if (messagesItems.get(position - 1).type.equals("text")) top = true;
+        if (currentIsSelf) {
+            if (position - 1 >= 0 && prevIsSelf) {
+                if (prev.type.equals("text")) top = true;
             }
-            if (position + 1 < messagesItems.size() && messagesItems.get(position + 1).fromName.equals(user_name)) {
-                if (messagesItems.get(position + 1).type.equals("text")) bottom = true;
+            if (position + 1 < messagesItems.size() && nextIsSelf) {
+                if (next.type.equals("text")) bottom = true;
             }
-            if (!( position + 1 < messagesItems.size() && messagesItems.get(position + 1).fromName.equals(user_name) )) {
-                imageProfile.setImageResource(ListMember.getList().get(idUser - 1).idImage);
+            if (!( position + 1 < messagesItems.size() && nextIsSelf )) {
+                imageProfile.setImageResource(ListMember.getList().get(MainActivity.getuserIndex()).idImage);
             }
             if (m.type.equals("text")) {
                 if (top && bottom) txtMsg.setBackground(context.getResources().getDrawable(R.drawable.bg_msg_you_middle));
@@ -102,14 +104,14 @@ class GroupMessagesListAdapter extends BaseAdapter {
                 setImageForSticker(sticker, m.message);
             }
         } else {
-            if (position - 1 >= 0 && messagesItems.get(position - 1).fromName.equals(room_name)) {
-                if (messagesItems.get(position - 1).type.equals("text")) top = true;
+            if (position - 1 >= 0 && !prevIsSelf) {
+                if (prev.type.equals("text")) top = true;
             }
-            if (position + 1 < messagesItems.size() && messagesItems.get(position + 1).fromName.equals(room_name)) {
-                if (messagesItems.get(position + 1).type.equals("text")) bottom = true;
+            if (position + 1 < messagesItems.size() && !nextIsSelf) {
+                if (next.type.equals("text")) bottom = true;
             }
-            if (!(position + 1 < messagesItems.size() && messagesItems.get(position + 1).fromName.equals(room_name))) {
-                imageProfile.setImageResource(ListMember.getList().get(idRoom - 1).idImage);
+            if (!(position + 1 < messagesItems.size() && m.fromName.equals(next.fromName))) {
+                imageProfile.setImageResource(ListMember.getList().get(ListMember.getIndexFromName(m.fromName)).idImage);
             }
             if (m.type.equals("text")) {
                 if (top && bottom) txtMsg.setBackground(context.getResources().getDrawable(R.drawable.bg_msg_from_middle));

@@ -61,7 +61,7 @@ class GroupGridAdapter extends BaseAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(context, ChatActivity.class);
+                Intent i = new Intent(context, GroupChatActivity.class);
                 i.putExtra("com.etspteam.groupName", group.name);
                 i.putExtra("com.etspteam.members", group.listMembersInString);
                 context.startActivity(i);

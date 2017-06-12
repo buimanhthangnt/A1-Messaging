@@ -48,7 +48,7 @@
             android:layout_centerInParent="true"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="45dp"
-            android:layout_toStartOf="@+id/btn_send"
+            android:layout_toStartOf="@+id/group_btn_send"
             android:background="@drawable/textview_border"
             android:hint="Soạn tin nhắn ..."
             android:maxLines="2"

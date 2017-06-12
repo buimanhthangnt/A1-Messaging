@@ -62,6 +62,15 @@ public class ListMember {
         return list;
     }
 
+    public static int getIndexFromName(String name) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).shortname.equals(name)) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
     public static class Member {
         public int id;
         public String name;
