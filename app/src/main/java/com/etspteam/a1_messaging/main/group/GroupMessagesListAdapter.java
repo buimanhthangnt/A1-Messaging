@@ -49,11 +49,11 @@ class GroupMessagesListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         GroupMessagesListAdapter.Message m = messagesItems.get(position);
-        boolean nextIsSelf = position + 1 >= messagesItems.size() || messagesItems.get(position + 1).isSelf;
+        boolean nextIsSelf = position + 1 < messagesItems.size() && messagesItems.get(position + 1).isSelf;
         boolean currentIsSelf = messagesItems.get(position).isSelf;
-        boolean prevIsSelf = position - 1 < 0 || messagesItems.get(position - 1).isSelf;
+        boolean prevIsSelf = position - 1 >= 0 && messagesItems.get(position - 1).isSelf;
         Message prev = (position - 1 >= 0) ? messagesItems.get(position - 1) : m;
-        Message next = (position + 1 < messagesItems.size()) ? messagesItems.get(position + 1) : prev;
+        Message next = (position + 1 < messagesItems.size()) ? messagesItems.get(position + 1) : m;
 
         LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 
@@ -71,7 +71,17 @@ class GroupMessagesListAdapter extends BaseAdapter {
         if (m.isSelf) {
             convertView = mInflater.inflate(R.layout.list_item_message_right, null);
         } else {
-            convertView = mInflater.inflate(R.layout.list_item_message_left, null);
+            if (m.fromName.equals(prev.fromName))
+                convertView = mInflater.inflate(R.layout.list_item_message_left, null);
+            else {
+                convertView = mInflater.inflate(R.layout.list_item_group_message_left, null);
+                TextView sender = (TextView) convertView.findViewById(R.id.sender_name_in_group);
+                for (int i = 0; i < ListMember.getList().size(); i++) {
+                    if (ListMember.getList().get(i).shortname.equals(m.fromName)) {
+                        sender.setText(ListMember.getList().get(i).beautifulName);
+                    }
+                }
+            }
         }
 
         if (position == 0) {
@@ -86,13 +96,13 @@ class GroupMessagesListAdapter extends BaseAdapter {
         boolean bottom = false;
 
         if (currentIsSelf) {
-            if (position - 1 >= 0 && prevIsSelf) {
+            if (prevIsSelf) {
                 if (prev.type.equals("text")) top = true;
             }
-            if (position + 1 < messagesItems.size() && nextIsSelf) {
+            if (nextIsSelf) {
                 if (next.type.equals("text")) bottom = true;
             }
-            if (!( position + 1 < messagesItems.size() && nextIsSelf )) {
+            if (!nextIsSelf ) {
                 imageProfile.setImageResource(ListMember.getList().get(MainActivity.getuserIndex()).idImage);
             }
             if (m.type.equals("text")) {
@@ -104,10 +114,10 @@ class GroupMessagesListAdapter extends BaseAdapter {
                 setImageForSticker(sticker, m.message);
             }
         } else {
-            if (position - 1 >= 0 && !prevIsSelf) {
+            if (prev.fromName.equals(m.fromName)) {
                 if (prev.type.equals("text")) top = true;
             }
-            if (position + 1 < messagesItems.size() && !nextIsSelf) {
+            if (next.fromName.equals(m.fromName)) {
                 if (next.type.equals("text")) bottom = true;
             }
             if (!(position + 1 < messagesItems.size() && m.fromName.equals(next.fromName))) {

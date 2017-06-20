@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import com.etspteam.a1_messaging.R;
+import com.etspteam.a1_messaging.main.group.GroupChatActivity;
 
 public class StickersGridAdapter extends BaseAdapter {
 
@@ -53,7 +54,7 @@ public class StickersGridAdapter extends BaseAdapter {
         image.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ChatActivity) mContext).sendMessage(path, "sticker");
+                ((GroupChatActivity) mContext).sendMessage(path, "sticker");
             }
         });
         return v;

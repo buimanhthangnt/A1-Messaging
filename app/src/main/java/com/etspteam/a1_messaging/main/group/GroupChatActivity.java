@@ -66,6 +66,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
     private TabLayout tabSticker;
     private KeyboardHeightProvider keyboardHeightProvider;
     private String listMembers;
+    private String dateLastMessage = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,7 +141,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
 
         listMessages = new ArrayList<>();
         listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
-        listMessages.add(new GroupMessagesListAdapter.Message("", "", true, "", "", "text"));
+        listMessages.add(new GroupMessagesListAdapter.Message("", "", false, "", "", "text"));
 
         GroupMessagesListAdapter adapter = new GroupMessagesListAdapter(this, listMessages, listMembers);
         listViewMessages.setAdapter(adapter);
@@ -246,7 +247,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         return super.dispatchTouchEvent(event);
     }
 
-    void sendMessage(String message, String type) {
+    public void sendMessage(String message, String type) {
         if (type.equals("text") && message.equals("")) {
             type = "sticker";
             message = "like_sticker.PNG";
@@ -269,6 +270,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
         message_root.updateChildren(map2);
 
         listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(user_name, message, true, currentDateandTime, "Đã gửi", type));
+        dateLastMessage = currentDateandTime;
         updateListMessages();
         listViewMessages.setSelection(listMessages.size() - 1);
         if (type.equals("text")) input_msg.setText("");
@@ -364,7 +366,7 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
             state = (DataSnapshot) i.next();
             date = (String) ((DataSnapshot) i.next()).getValue();
             type = (String) ((DataSnapshot) i.next()).getValue();
-            if (state.getValue().equals("Đã gửi")) {
+            if (state.getValue().equals("Đã gửi") && !sender.equals(user_name)) {
                 state.getRef().setValue("Đã xem");
             } else if (state.getValue().equals("Đã nhận")) {
                 for (GroupMessagesListAdapter.Message message : listMessages) {
@@ -376,7 +378,11 @@ public class GroupChatActivity extends AppCompatActivity implements StickersGrid
                     if (message.date.equals(date)) message.state = "Đã xem";
                 }
             }
-            listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, "Đã xem", type));
+            if (date.compareTo(dateLastMessage) > 0) {
+                listMessages.add(listMessages.size() - 1, new GroupMessagesListAdapter.Message(sender, chat_msg, sender.equals(user_name), date, (String) state.getValue(), type));
+                dateLastMessage = date;
+                //throw new RuntimeException();
+            }
             updateListMessages();
         }
     }
