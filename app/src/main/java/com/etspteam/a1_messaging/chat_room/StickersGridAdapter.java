@@ -54,7 +54,10 @@ public class StickersGridAdapter extends BaseAdapter {
         image.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((GroupChatActivity) mContext).sendMessage(path, "sticker");
+                if (mContext instanceof GroupChatActivity)
+                    ((GroupChatActivity) mContext).sendMessage(path, "sticker");
+                else
+                    ((ChatActivity) mContext).sendMessage(path, "sticker");
             }
         });
         return v;
